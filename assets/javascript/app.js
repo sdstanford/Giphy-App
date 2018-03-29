@@ -1,54 +1,102 @@
-//Add event listener to create new button with input title
+//Create initial array of TV shows
+var tvShows = ["Friends", "Cheers", "Parenthood", "Scrubs", "Alias", "Scandal"]
+
+//Load TV show buttons from array when window loads
+$(window).on('load', displayButtons());
+
+//Function to display array items as buttons
+function displayButtons () {
+    //Enpty div before reloading with new buttons
+    $("#button-div").empty();
+    //For loop to go through array and create a button for each
+    for(i=0; i<tvShows.length; i++){
+    //Create button
+    var tvButton = $("<button>");
+    //Add ID to button
+    tvButton.attr("id", tvShows[i]);
+    //Add text to button
+    tvButton.text(tvShows[i]);
+    //Add button to page
+    $("#button-div").append(tvButton);
+    };
+}
+
+//Add event listener to push new show to array
 $("#submit-button").on("click", function(event) {
+    //Stop from reloading
     event.preventDefault();
-    
+    //Grab user input from input box
     var newShow = $("#new-show").val().trim();
-    console.log(newShow);
+    //Push user input to buttons array
+    tvShows.push(newShow);
+    //Display buttons with new input
+    displayButtons();
+});
 
-    var showButton = $("<button>");
-    showButton.attr("id", newShow);
-    showButton.text(newShow);
-    $("#button-div").append(showButton);
+//Create click event for buttons
+$("button").on("click", function(event) {
+    event.preventDefault();
 
-    $("#" + newShow).on("click", function(event) {
-        event.preventDefault();
+    //BUG: HOW TO GRAB A DYNAMICALLY CREATED BUTTON BY ITS ID
+    
+    //Create Giphy URL
+    var queryURL = "http://api.giphy.com/v1/gifs/search?q=" + tvShows[i] + "&api_key=bBlegFujhJCYdMATQpNX51744gjcVYd0&limit=10";
 
-        var queryURL = "http://api.giphy.com/v1/gifs/search?q=" + newShow + "&api_key=bBlegFujhJCYdMATQpNX51744gjcVYd0&limit=10";
+    //Create AJAX request
+    $.ajax({
+        url: queryURL,
+        method: "GET"
+    })
+    .then(function(response) {
+        var results = response.data;
+        console.log(results);
 
-        $.ajax({
-            url: queryURL,
-            method: "GET"
-        })
-        .then(function(response) {
-            var results = response.data;
+    //Create for loop to go through AJAX results and pull relevent information
+    for(i = 0; i < results.length; i++){
 
-            console.log(results);
+        // Creating a div with the class "item"
+        var gifDiv = $("<div class='item'>");
 
-        for(i = 0; i < results.length; i++){
+        // Storing the result item's rating
+        var rating = results[i].rating;
 
-            // Creating a div with the class "item"
-            var gifDiv = $("<div class='item'>");
+        // Creating a paragraph tag with the result item's rating
+        var p = $("<p>").text("Rating: " + rating);
 
-            // Storing the result item's rating
-            var rating = results[i].rating;
+        // Creating an image tag
+        var tvGif = $("<img>");
 
-            // Creating a paragraph tag with the result item's rating
-            var p = $("<p>").text("Rating: " + rating);
+        // Giving the image tag an src attribute of a proprty pulled off the
+        // result item
+        tvGif.attr("src", results[i].images.fixed_height.url);
 
-            // Creating an image tag
-            var tvGif = $("<img>");
+        //Give the item a class of "gif"
+        tvGif.attr("class", "gif");
 
-            // Giving the image tag an src attribute of a proprty pulled off the
-            // result item
-            tvGif.attr("src", results[i].images.fixed_height.url);
+        // Appending the paragraph and personImage we created to the "gifDiv" div we created
+        gifDiv.append(p);
+        gifDiv.append(tvGif);
 
-            // Appending the paragraph and personImage we created to the "gifDiv" div we created
-            gifDiv.append(p);
-            gifDiv.append(tvGif);
-
-            // Prepending the gifDiv to the "#gifs-appear-here" div in the HTML
-            $("#gif-div").prepend(gifDiv);
-        }
-        });
+        // Prepending the gifDiv to the "#gifs-appear-here" div in the HTML
+        $("#gif-div").prepend(gifDiv);
+    }
     });
 });
+
+//BUG: ADJUST CODE BELOW TO BE RELEVENT TO CODE ABOVE
+
+//Create click event to pause gifs
+$(".gif").on("click", function() {
+    // The attr jQuery method allows us to get or set the value of any attribute on our HTML element
+    var state = $(this).attr("data-state");
+    // If the clicked image's state is still, update its src attribute to what its data-animate value is.
+    // Then, set the image's data-state to animate
+    // Else set src to the data-still value
+    if (state === "still") {
+      $(this).attr("src", $(this).attr("data-animate"));
+      $(this).attr("data-state", "animate");
+    } else {
+      $(this).attr("src", $(this).attr("data-still"));
+      $(this).attr("data-state", "still");
+    }
+  });
