@@ -1,0 +1,13 @@
+.row{
+    margin:20px;
+}
+
+.btn .btn-default{
+    background-color:purple;
+    border-style: solid;
+    border-color: lightslategray;
+    border-width: 1px;
+    color: white;
+    padding:10px;
+
+}
